@@ -1,0 +1,8 @@
+[[[HSRC]]]
+    [[[STEP]]]
+        [[[REQUEST]]]
+        GET /cgi-bin/reconnect HTTP/1.1
+        Host: %%%routerip%%%
+        [[[/REQUEST]]]
+    [[[/STEP]]]
+[[[/HSRC]]]
