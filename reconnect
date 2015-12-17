@@ -1,14 +1,39 @@
 #!/bin/sh
 
+# ------------------------------
+
+OPENWRT_INTERFACE="vpn"
+LINUX_INTERFACE="pptp-vpn"
+
+# ------------------------------
+
+getip()
+{
+	INET_ADDR=$(ifconfig $LINUX_INTERFACE 2> /dev/null | grep 'inet addr')
+	if [ $? -eq 0 ]; then
+		echo $INET_ADDR | cut -d: -f2 | awk '{ print $1}'
+	else
+		echo ERROR
+	fi
+}
+
 echo "Content-Type: text/plain"
 echo ""
 echo "Reconnecting... "
 
-echo -n "Old IP: "
-ifconfig  pptp-vpn | grep 'inet addr' | cut -d: -f2 | awk '{ print $1}'
+old_ip=$(getip)
+echo -n "Old IP: $old_ip"
 
-ifup wan
-sleep 5
+ifup $OPENWRT_INTERFACE
 
-echo -n "New IP: "
-ifconfig  pptp-vpn | grep 'inet addr' | cut -d: -f2 | awk '{ print $1}'
+while true; do
+	new_ip=$(getip)
+	if [ "$new_ip" != "ERROR" ]; then
+		if [ "$new_ip" != "$old_ip" ]; then
+			break;
+		fi
+	fi
+done
+
+echo
+echo "New IP: $new_ip"
